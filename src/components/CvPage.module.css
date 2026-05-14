@@ -724,8 +724,6 @@
 
 .skillsEducationCol .educationTitle {
   margin: 0 0 0.75rem;
-  padding-left: 6px;
-  box-sizing: border-box;
   width: 100%;
 }
 
@@ -755,7 +753,6 @@
 
   .skillsEducationCol .educationTitle {
     margin: 0 0 0.6rem;
-    padding-left: 6px;
   }
 }
 
