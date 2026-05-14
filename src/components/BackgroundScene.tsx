@@ -23,7 +23,7 @@ function CoreShape({ scrollRef }: { scrollRef: ScrollRef }) {
 
   return (
     <group ref={group}>
-      <mesh ref={mesh} scale={1.35}>
+      <mesh ref={mesh} scale={1.52}>
         <icosahedronGeometry args={[1, 1]} />
         <meshStandardMaterial
           color="#132a26"
@@ -33,7 +33,7 @@ function CoreShape({ scrollRef }: { scrollRef: ScrollRef }) {
           metalness={0.55}
         />
       </mesh>
-      <mesh scale={1.42}>
+      <mesh scale={1.58}>
         <icosahedronGeometry args={[1, 1]} />
         <meshBasicMaterial color="#FFFFFF" wireframe transparent opacity={0.12} depthWrite={false} />
       </mesh>
@@ -44,8 +44,8 @@ function CoreShape({ scrollRef }: { scrollRef: ScrollRef }) {
 function Scene({ scrollRef }: { scrollRef: ScrollRef }) {
   return (
     <>
-      <color attach="background" args={["#050508"]} />
-      <fog attach="fog" args={["#050508", 8, 22]} />
+      <color attach="background" args={["#000000"]} />
+      <fog attach="fog" args={["#000000", 8, 22]} />
       <ambientLight intensity={0.4} />
       <directionalLight position={[4, 6, 4]} intensity={1.05} color="#c8fff4" />
       <pointLight position={[-3, -1, 2]} intensity={0.55} color="#7cf0d6" />
@@ -61,10 +61,10 @@ export function BackgroundScene({ scrollRef }: { scrollRef: ScrollRef }) {
     <div style={{ width: "100%", height: "100%" }}>
       <Canvas
         dpr={dpr}
-        camera={{ position: [0, 0, 5.2], fov: 42 }}
+        camera={{ position: [0, 0, 4.85], fov: 42 }}
         gl={{ alpha: false, antialias: true, powerPreference: "default" }}
         onCreated={({ gl }) => {
-          gl.setClearColor("#050508", 1);
+          gl.setClearColor("#000000", 1);
         }}
       >
         <Scene scrollRef={scrollRef} />

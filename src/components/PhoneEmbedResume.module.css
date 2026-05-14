@@ -1,0 +1,137 @@
+.wrap {
+  min-height: 100vh;
+  margin: 0;
+  padding: 1rem 1rem 2rem;
+  background: #0a0a0f;
+  color: #c9c4dc;
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+
+.head {
+  margin-bottom: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(137, 47, 208, 0.35);
+}
+
+.roleHeading {
+  margin: 0 0 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #e8e4f0;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  hyphens: none;
+  -webkit-hyphens: none;
+}
+
+.meta {
+  margin: 0;
+  color: #9b97b5;
+  font-size: 0.62rem;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.links a {
+  color: #c9b8e8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.section {
+  margin-top: 1rem;
+}
+
+.sectionTitle {
+  margin: 0 0 0.45rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #8b5cbf;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.p {
+  margin: 0;
+  color: #b8b3cc;
+}
+
+.job {
+  margin-bottom: 0.75rem;
+}
+
+.job:last-child {
+  margin-bottom: 0;
+}
+
+.jobLine {
+  margin: 0 0 0.2rem;
+  font-weight: 700;
+  color: #e8e4f0;
+  font-size: 0.68rem;
+}
+
+.jobMeta {
+  margin: 0 0 0.25rem;
+  color: #8b5cbf;
+  font-size: 0.6rem;
+}
+
+.bullets {
+  margin: 0;
+  padding-left: 1rem;
+  color: #9b97b5;
+  font-size: 0.62rem;
+}
+
+.bullets li {
+  margin-bottom: 0.15rem;
+}
+
+.edu {
+  margin: 0 0 0.5rem;
+  color: #b8b3cc;
+}
+
+.edu:last-child {
+  margin-bottom: 0;
+}
+
+.eduDeg {
+  font-weight: 700;
+  color: #e8e4f0;
+}
+
+.skills {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skills li {
+  margin-bottom: 0.45rem;
+}
+
+.cat {
+  color: #8b5cbf;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.tagline {
+  margin: 0.75rem 0 0;
+  font-size: 0.58rem;
+  color: rgba(255, 255, 255, 0.35);
+  text-align: center;
+}

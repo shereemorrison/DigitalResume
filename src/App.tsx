@@ -1,23 +1,37 @@
-import { useMemo, useRef } from "react";
-import { createPortal } from "react-dom";
-import { BackgroundScene } from "./components/BackgroundScene";
+import { useEffect, useRef } from "react";
 import { CvPage } from "./components/CvPage";
+import { PhoneEmbedResume } from "./components/PhoneEmbedResume";
+import { resume } from "./data/resume";
 import styles from "./App.module.css";
-
-const R3F_HOST_ID = "r3f-bg";
 
 export default function App() {
   const scrollRef = useRef({ progress: 0 });
 
-  const r3fHost = useMemo(() => {
-    if (typeof document === "undefined") return null;
-    return document.getElementById(R3F_HOST_ID);
+  useEffect(() => {
+    const label = resume.siteTabLabel.trim() || "SM";
+    const lock = () => {
+      if (document.title !== label) document.title = label;
+    };
+    lock();
+    const obs = new MutationObserver(lock);
+    obs.observe(document.head, { subtree: true, childList: true, characterData: true });
+    return () => obs.disconnect();
   }, []);
+
+  const isEmbed =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("embed") === "1";
+  const hidePhoneMockup =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("iframe") === "1";
+
+  if (isEmbed) {
+    return <PhoneEmbedResume />;
+  }
 
   return (
     <div className={styles.app}>
-      {r3fHost ? createPortal(<BackgroundScene scrollRef={scrollRef} />, r3fHost) : null}
-      <CvPage scrollRef={scrollRef} />
+      <CvPage scrollRef={scrollRef} hidePhoneMockup={hidePhoneMockup} />
     </div>
   );
 }

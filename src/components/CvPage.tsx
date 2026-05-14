@@ -1,11 +1,12 @@
-import { useLayoutEffect, useRef, useState, type MutableRefObject } from "react";
+import { useLayoutEffect, useMemo, useRef, useState, type MutableRefObject } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
-import SplitType from "split-type";
-import { resume } from "../data/resume";
+import { resume, type Job } from "../data/resume";
+import { getPhoneIframeSrc } from "../lib/portfolioPreview";
 import styles from "./CvPage.module.css";
 import { BackgroundScene } from "./BackgroundScene";
+import { PhoneBrowser } from "./PhoneBrowser";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,7 +16,9 @@ const NAV = [
   { href: "#hero-section", label: "Home" },
   { href: "#intro-section", label: "About" },
   { href: "#skills-section", label: "Skills" },
-  { href: "#block-experience", label: "Experience" },
+  { href: "#education-section", label: "Education" },
+  { href: "#block-experience", label: "Technical experience" },
+  { href: "#other-experience-section", label: "Other experience" },
 ];
 
 function heroTitleLines(title: string): [string, string] {
@@ -34,29 +37,57 @@ function nameLines(full: string): [string, string] {
   return [full.toUpperCase(), ""];
 }
 
-type Props = { scrollRef: ScrollRef };
+function JobArticle({ job }: { job: Job }) {
+  return (
+    <article className={styles.jobCard} data-job>
+      <h3 className={styles.jobRole}>{job.role}</h3>
+      <span className={styles.jobMeta}>
+        {job.company} · {job.location} · {job.period}
+      </span>
+      <p className={styles.jobSummary}>{job.summary}</p>
+      {job.highlights.length > 0 ? (
+        <ul className={styles.jobBullets}>
+          {job.highlights.map((h) => (
+            <li key={h}>{h}</li>
+          ))}
+        </ul>
+      ) : null}
+    </article>
+  );
+}
 
-export function CvPage({ scrollRef }: Props) {
+type Props = {
+  scrollRef: ScrollRef;
+  /** Set when this tree is loaded inside the About iframe (`?iframe=1`) so the nested phone is not rendered. */
+  hidePhoneMockup?: boolean;
+};
+
+export function CvPage({ scrollRef, hidePhoneMockup = false }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const heroGridRef = useRef<HTMLDivElement>(null);
-  const heroVisualRef = useRef<HTMLDivElement>(null);
-  const heroPanelRef = useRef<HTMLDivElement>(null);
+  const heroNameRef = useRef<HTMLHeadingElement>(null);
   const introRef = useRef<HTMLElement>(null);
   const introWrRef = useRef<HTMLDivElement>(null);
-  const intro1Ref = useRef<HTMLParagraphElement>(null);
-  const introBtnsRef = useRef<HTMLDivElement>(null);
+  const introCopyRef = useRef<HTMLDivElement>(null);
+  const introPhoneRef = useRef<HTMLDivElement>(null);
   const expSectionRef = useRef<HTMLElement>(null);
-  const expTitleRef = useRef<HTMLDivElement>(null);
+  const otherExpSectionRef = useRef<HTMLElement>(null);
 
   const [l1, l2] = heroTitleLines(resume.title);
   const [n1, n2] = nameLines(resume.name);
+  const phoneIframeSrc = useMemo(
+    () => getPhoneIframeSrc(resume.phonePreviewMode, resume.portfolioUrl),
+    [resume.phonePreviewMode, resume.portfolioUrl]
+  );
 
   useLayoutEffect(() => {
     const root = rootRef.current;
     if (!root) return;
+
+    const isPhonePreviewShell = hidePhoneMockup;
 
     const lenis = new Lenis({
       lerp: 0.08,
@@ -75,76 +106,21 @@ export function CvPage({ scrollRef }: Props) {
     gsap.ticker.add(ticker);
     gsap.ticker.lagSmoothing(0);
 
-    const splits: SplitType[] = [];
-
     const ctx = gsap.context(() => {
       const hero = heroRef.current;
       const heroGrid = heroGridRef.current;
-      const heroVisual = heroVisualRef.current;
-      const panel = heroPanelRef.current;
-      const navLinks = heroGrid?.querySelectorAll<HTMLElement>("[data-hero-tab]") ?? [];
+      const heroName = heroNameRef.current;
       const intro = introRef.current;
       const introWr = introWrRef.current;
-      const intro1 = intro1Ref.current;
-      const introBtns = introBtnsRef.current;
+      const introCopy = introCopyRef.current;
       const expSection = expSectionRef.current;
-      const expTitle = expTitleRef.current;
+      const otherExpSection = otherExpSectionRef.current;
 
-      let lines1: HTMLElement[] = [];
-
-      if (intro1) {
-        const s1 = new SplitType(intro1, { types: "lines" });
-        splits.push(s1);
-        lines1 = (s1.lines ?? []) as HTMLElement[];
-      }
-  const lineEls = [...lines1];
-
-
-      const heroTl = gsap.timeline();
-      if (panel && heroVisual) {
-        const r = heroVisual.getBoundingClientRect();
-
-        if (r.width === 0 || r.height === 0) {
-          // slot hasn't painted yet — skip intro, just place it
-          panel.classList.add(styles.heroPanelSlotted);
-          if (navLinks.length) gsap.set(navLinks, { opacity: 1 });
-        } else {
-          if (navLinks.length) heroTl.set(navLinks, { opacity: 0 });
-          heroTl.fromTo(
-            panel,
-            {
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100vw",
-              height: "100vh",
-              opacity: 1,
-            },
-            {
-              top: r.top,
-              left: r.left,
-              width: r.width,
-              height: r.height,
-              duration: 0.85,
-              ease: "power2.inOut",
-              onComplete: () => {
-                panel.classList.add(styles.heroPanelSlotted);
-              },
-            },
-            0.15
-          );
-          if (navLinks.length) {
-            heroTl.to(navLinks, { opacity: 1, stagger: { each: 0.12 }, duration: 0.45 }, ">-0.2");
-          }
-        }
-      } else if (navLinks.length) {
-        gsap.set(navLinks, { opacity: 1 });
-      }
-
-      if (hero && expSection) {
+      const pinEnd = otherExpSection ?? expSection;
+      if (!isPhonePreviewShell && hero && pinEnd) {
         ScrollTrigger.create({
           trigger: hero,
-          endTrigger: expSection,
+          endTrigger: pinEnd,
           pin: true,
           start: "top top",
           end: "bottom bottom",
@@ -152,46 +128,68 @@ export function CvPage({ scrollRef }: Props) {
         });
       }
 
-      if (heroGrid && intro) {
+      if (!isPhonePreviewShell && heroGrid && intro) {
         const fadePrev = gsap.timeline();
-        fadePrev.fromTo(heroGrid, { opacity: 1 }, { opacity: 0, ease: "none" });
+        const fadeHeroTargets = heroName ? [heroGrid, heroName] : [heroGrid];
+        fadePrev.fromTo(fadeHeroTargets, { opacity: 1 }, { opacity: 0, ease: "none" });
         ScrollTrigger.create({
           trigger: intro,
-          start: "top 55%",
-          end: "top 12%",
+          start: "top 58%",
+          end: "top 10%",
           scrub: 1,
           animation: fadePrev,
           pinSpacing: false,
         });
       }
 
-      if (introWr && intro) {
-        gsap.set(introWr, { opacity: 0 });
-        if (lineEls.length) gsap.set(lineEls, { yPercent: 100, rotate: 3 });
-        if (introBtns) gsap.set(introBtns, { yPercent: 110 });
-
-        const introTl = gsap.timeline();
-        introTl.to(introWr, { opacity: 1, duration: 0.35 });
-        introTl.to(
-          lineEls,
-          { yPercent: 0, rotate: 0, stagger: { each: 0.08 }, duration: 0.55, ease: "power2.out" },
-          ">+0.2"
-        );
-        if (introBtns) {
-          introTl.to(introBtns, { yPercent: 0, duration: 0.5, ease: "power2.out" }, ">-0.1");
-        }
-
-        ScrollTrigger.create({
-          trigger: intro,
-          start: "top 70%",
-          end: "top top",
-          scrub: 1,
-          animation: introTl,
-          pinSpacing: false,
+      if (!isPhonePreviewShell && introCopy && intro) {
+        gsap.from(introCopy, {
+          y: 32,
+          opacity: 0,
+          duration: 0.52,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: intro,
+            start: "top 88%",
+            toggleActions: "play none none reverse",
+          },
         });
       }
 
-      if (expSection && expTitle && introWr) {
+      const introPhone = introPhoneRef.current;
+      if (!isPhonePreviewShell && introPhone && intro) {
+        gsap.set(introPhone, { transformPerspective: 1100, force3D: true });
+        gsap.fromTo(
+          introPhone,
+          {
+            xPercent: 42,
+            rotationY: -38,
+            rotationX: 10,
+            rotationZ: -2,
+            yPercent: 18,
+            scale: 0.72,
+            opacity: 0.12,
+          },
+          {
+            xPercent: 0,
+            rotationY: 0,
+            rotationX: 0,
+            rotationZ: 0,
+            yPercent: 0,
+            scale: 1,
+            opacity: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: intro,
+              start: "top bottom",
+              end: "center 36%",
+              scrub: 0.9,
+            },
+          }
+        );
+      }
+
+      if (!isPhonePreviewShell && expSection && introWr) {
         const fadeIntro = gsap.timeline();
         fadeIntro.fromTo(introWr, { opacity: 1 }, { opacity: 0, ease: "none" });
         ScrollTrigger.create({
@@ -202,46 +200,22 @@ export function CvPage({ scrollRef }: Props) {
           animation: fadeIntro,
           pinSpacing: false,
         });
-
-        ScrollTrigger.create({
-          trigger: expSection,
-          endTrigger: expSection,
-          pin: expTitle,
-          start: "top top",
-          end: "bottom bottom",
-          pinSpacing: false,
-        });
       }
 
-      const pills = root.querySelectorAll("[data-skill-pill]");
-      if (pills.length) {
-        gsap.from(pills, {
-          scale: 0.88,
-          opacity: 0,
-          duration: 0.4,
-          stagger: { each: 0.03, from: "random" },
-          ease: "back.out(1.2)",
-          scrollTrigger: {
-            trigger: "#skills-section",
-            start: "top 82%",
-            toggleActions: "play none none reverse",
-          },
-        });
-      }
-
-      const jobs = root.querySelectorAll("[data-job]");
-      if (jobs.length) {
-        gsap.from(jobs, {
-          y: 40,
-          opacity: 0,
-          duration: 0.55,
-          stagger: 0.08,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: "#block-experience",
-            start: "top 75%",
-            toggleActions: "play none none reverse",
-          },
+      if (!isPhonePreviewShell) {
+        const jobCards = root.querySelectorAll<HTMLElement>("[data-job]");
+        jobCards.forEach((card) => {
+          gsap.from(card, {
+            y: 36,
+            opacity: 0,
+            duration: 0.5,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 90%",
+              toggleActions: "play none none reverse",
+            },
+          });
         });
       }
     }, root);
@@ -249,18 +223,34 @@ export function CvPage({ scrollRef }: Props) {
     ScrollTrigger.refresh();
     requestAnimationFrame(() => ScrollTrigger.refresh());
 
+    if (isPhonePreviewShell) {
+      lenis.scrollTo(0, { immediate: true });
+      requestAnimationFrame(() => {
+        lenis.scrollTo(0, { immediate: true });
+      });
+    }
+
+    const onResize = () => {
+      ScrollTrigger.refresh();
+    };
+    window.addEventListener("resize", onResize);
+
     return () => {
+      window.removeEventListener("resize", onResize);
       ctx.revert();
-      splits.forEach((s) => s.revert());
       lenis.off("scroll", onLenisScroll);
       gsap.ticker.remove(ticker);
       gsap.ticker.lagSmoothing(500);
       lenis.destroy();
     };
-  }, [scrollRef]);
+  }, [scrollRef, hidePhoneMockup]);
 
   return (
-    <div ref={rootRef} className={styles.page}>
+    <div
+      ref={rootRef}
+      className={styles.page}
+      {...(hidePhoneMockup ? { "data-iframe-preview": "" } : {})}
+    >
       <div className={styles.progressTrack}>
         <div ref={barRef} className={styles.progressBar} />
       </div>
@@ -299,100 +289,128 @@ export function CvPage({ scrollRef }: Props) {
 
       <section ref={heroRef} id="hero-section" className={styles.hero}>
         <div ref={heroGridRef} className={styles.heroGrid}>
+          <div className={styles.heroGlobe} aria-hidden>
+            <div className={styles.heroGlobeInner}>
+              <BackgroundScene scrollRef={scrollRef} />
+            </div>
+          </div>
           <h1 className={styles.heroTitle}>
             <span>{l1}</span>
             <span>{l2}</span>
           </h1>
-          <div ref={heroPanelRef} className={styles.heroPanel} aria-hidden>
-            <div ref={heroVisualRef} style={{ width: "100%", height: "100%" }}>
-              <BackgroundScene scrollRef={scrollRef} />
-            </div>
-          </div>
-          <h2 className={styles.heroName}>
-            <span>{n1}</span>
-            {n2 ? <span>{n2}</span> : null}
-          </h2>
         </div>
+        <h2 ref={heroNameRef} className={styles.heroName}>
+          <span>{n1}</span>
+          {n2 ? <span>{n2}</span> : null}
+        </h2>
       </section>
 
-      <section ref={introRef} id="intro-section" className={styles.intro}>
-        <div ref={introWrRef} className={styles.introInner}>
-          <h2 className={styles.introTitle}>Who am I</h2>
-          <div className={styles.introGrid}>
-            <p ref={intro1Ref} className={styles.introBig}>
-              {resume.summary}
-            </p>
-            <div ref={introBtnsRef} className={styles.introActions}>
-              <a className={styles.btn} href={`mailto:${resume.email}`}>
-                Email me
-              </a>
-              <a className={styles.btn} href={`tel:+44${resume.phone.replace(/^0/, "")}`}>
-                Call
-              </a>
+      <div
+        className={`${styles.introSkillsChapter} ${hidePhoneMockup ? styles.introSkillsChapterNoPhone : ""}`}
+      >
+        <section ref={introRef} id="intro-section" className={styles.intro}>
+          <div className={styles.sectionInner}>
+            <div ref={introWrRef} className={styles.introContent}>
+              <h2 className={styles.introTitle}>Who am I</h2>
+              <div ref={introCopyRef} className={styles.introCopy}>
+                <p className={styles.introBig}>
+                  {resume.summary}
+                </p>
+                <div className={styles.introActions}>
+                  <a className={styles.btn} href={`mailto:${resume.email}`}>
+                    Email me
+                  </a>
+                  <a className={styles.btn} href={`tel:+44${resume.phone.replace(/^0/, "")}`}>
+                    Call
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-          </div>
-      </section>
+        </section>
 
-      <section id="skills-section" className={styles.skillsBlock}>
-        <div className={styles.skillsInner}>
-          <h2 className={styles.skillsTitle}>Technical skills</h2>
-          <ul className={styles.skillTags}>
-            {resume.skillCategories.map((cat) => (
-              <li key={cat.label} className={styles.skillCategory}>
-                <span className={styles.skillCategoryLabel}>{cat.label}</span>
-                {cat.items.map((item) => (
-                  <span key={item} className={styles.skillTag}>{item}</span>
+        <section id="skills-section" className={styles.skillsBlock}>
+          <div className={styles.sectionInner}>
+            <div className={styles.skillsBlockLayout}>
+              <h2 className={styles.skillsTitle}>Technical skills</h2>
+              <ul className={styles.skillTags}>
+                {resume.skillCategories.map((cat) => (
+                  <li key={cat.label} className={styles.skillCategory}>
+                    <span className={styles.skillCategoryLabel}>{cat.label}</span>
+                    {cat.items.map((item) => (
+                      <span key={item} className={styles.skillTag}>{item}</span>
+                    ))}
+                  </li>
                 ))}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section className={styles.education}>
-        <div className={styles.educationInner}>
-          <h2 className={styles.educationTitle}>Education</h2>
-          <ul className={styles.eduList}>
-            {resume.education.map((edu) => (
-              <li key={edu.degree} className={styles.eduItem}>
-                <p className={styles.eduDegree}>{edu.degree}</p>
-                <span className={styles.eduInstitution}>
-                  {edu.institution}{edu.note ? ` · ${edu.note}` : ""}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section ref={expSectionRef} id="block-experience" className={styles.experience}>
-        <div ref={expTitleRef} className={styles.expTitleBar}>
-          <h2 className={styles.expTitle}>Experience</h2>
-        </div>
-        <div className={styles.expInner}>
-          {resume.experience.map((job) => (
-            <article key={`${job.company}-${job.period}`} className={styles.jobCard} data-job>
-              <h3 className={styles.jobRole}>{job.role}</h3>
-              <span className={styles.jobMeta}>
-                {job.company} · {job.location} · {job.period}
-              </span>
-              <p className={styles.jobSummary}>{job.summary}</p>
-              {job.highlights.length > 0 ? (
-                <ul className={styles.jobBullets}>
-                  {job.highlights.map((h) => (
-                    <li key={h}>{h}</li>
+              </ul>
+              <div className={styles.skillsEducationCol}>
+                <h3 id="education-section" className={styles.educationTitle}>
+                  Education
+                </h3>
+                <ul className={styles.eduTimelineVertical}>
+                  {resume.education.map((edu) => (
+                    <li key={`${edu.degree}-${edu.institution}`} className={styles.eduTimelineVertItem}>
+                      <div className={styles.eduTimelineVertRail}>
+                        <span className={styles.eduTimelineNode} aria-hidden />
+                      </div>
+                      <div className={styles.eduTimelineVertBody}>
+                        {edu.year ? <p className={styles.eduTimelineYear}>{edu.year}</p> : null}
+                        <p className={styles.eduDegree}>{edu.degree}</p>
+                        <span className={styles.eduInstitution}>
+                          {edu.institution}
+                          {edu.note ? ` · ${edu.note}` : ""}
+                        </span>
+                      </div>
+                    </li>
                   ))}
                 </ul>
-              ) : null}
-            </article>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {!hidePhoneMockup ? (
+          <div className={styles.phoneChapterRail}>
+            <div ref={introPhoneRef} className={styles.phoneStage}>
+              <div className={styles.phoneDevice}>
+                <div className={styles.phoneRim} />
+                <div className={styles.phoneIsland} aria-hidden />
+                <div className={styles.phoneScreen}>
+                  <PhoneBrowser
+                    url={phoneIframeSrc}
+                    title={`${resume.siteTabLabel} preview`}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      <section ref={expSectionRef} id="block-experience" className={styles.experience}>
+        <div className={styles.sectionInner}>
+          <h2 className={styles.experienceTitle}>Technical experience</h2>
+          {resume.experience.map((job) => (
+            <JobArticle key={`${job.company}-${job.period}`} job={job} />
           ))}
         </div>
       </section>
 
-      <footer className={styles.footer}>
-        Sheree Morrison{" "}
-        <a href="https://github.com/shereemorrison"></a> · 07440168734 · shereemorrison@outlook.com
+      <section ref={otherExpSectionRef} id="other-experience-section" className={styles.otherExperience}>
+        <div className={styles.sectionInner}>
+          <h2 className={styles.otherExperienceTitle}>Other experience</h2>
+          {resume.otherExperience.map((job) => (
+            <JobArticle key={`${job.company}-${job.period}`} job={job} />
+          ))}
+        </div>
+      </section>
+
+      <footer id="site-footer" className={styles.footer}>
+        <span>Sheree Morrison</span>
+        {" · "}
+        <a href="https://github.com/shereemorrison">GitHub</a>
+        {" · "}
+        <span>07440168734 · shereemorrison@outlook.com</span>
       </footer>
     </div>
   );

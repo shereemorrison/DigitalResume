@@ -10,29 +10,34 @@
 
 html {
   scroll-behavior: auto;
+  min-height: 100%;
+  min-height: 100dvh;
+  min-height: 100svh;
+  min-height: -webkit-fill-available;
+  background-color: #0a0a0f;
+  overflow-x: clip;
 }
 
 body {
   margin: 0;
-  min-height: 100vh;
+  min-height: 100%;
+  min-height: 100dvh;
+  min-height: 100svh;
+  min-height: -webkit-fill-available;
   color: #e8e8ed;
-  background: var(--c-black);
+  background-color: #0a0a0f;
   -webkit-font-smoothing: antialiased;
-}
-
-#r3f-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
+  overflow-x: clip;
 }
 
 #root {
   position: relative;
   z-index: 1;
-  min-height: 100vh;
-  background: transparent;
+  min-height: 100dvh;
+  min-height: 100svh;
+  min-height: -webkit-fill-available;
+  background-color: #0a0a0f;
+  overflow-x: clip;
 }
 
 a {
@@ -42,4 +47,31 @@ a {
 ::selection {
   color: #fff;
   background: #892fd0;
+}
+
+/* Phone iframe shell (`?iframe=1`): no native scrollbar gutter — full-bleed width; wheel/trackpad/touch still scroll. */
+html:has([data-iframe-preview]) {
+  scrollbar-gutter: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html:has([data-iframe-preview])::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+html:has([data-iframe-preview]) body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html:has([data-iframe-preview]) body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+html:has([data-iframe-preview]) #root {
+  width: 100%;
+  max-width: 100%;
 }

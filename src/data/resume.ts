@@ -16,6 +16,8 @@ export type Education = {
   degree: string;
   institution: string;
   note?: string;
+  /** Shown on the timeline under the node (e.g. year or range). */
+  year?: string;
 };
 
 export type ResumeData = {
@@ -28,24 +30,31 @@ export type ResumeData = {
   links: { label: string; href: string }[];
   summary: string;
   skillCategories: SkillCategory[];
-  experience: Job[];
+  /** Primary development role (e.g. current traineeship). */
+  technicalexperience: Job[];
+  /** Earlier roles outside the primary dev track. */
+  otherExperience: Job[];
   education: Education[];
 };
 
 export const resume: ResumeData = {
   name: "Sheree Morrison",
-  title: "Junior Software Developer",
+  title: "Front-End Developer",
   phone: "07440168734",
   location: "Warrington",
   workRights: "Full UK working rights",
   email: "shereemorrison@outlook.com",
   links: [],
+  portfolioUrl: "https://shereemorrison.github.io/DigitalResume/",
+  phonePreviewMode: "self-embed",
+  siteTabLabel: "SM",
+  heroCharacterMode: "reference-gltf",
   summary:
     "Junior Developer with experience building responsive, user-focused interfaces using SwiftUI, Flutter and JavaScript. Strong focus on clean, maintainable code and translating complex data into clear, functional UI components. Experienced working with APIs and collaborating in cross-functional teams.",
   skillCategories: [
     {
       label: "Languages",
-      items: ["HTML, CSS", "Swift", "Dart", "JavaScript / TypeScript", "SQL"],
+      items: ["Swift", "Dart", "JavaScript/TypeScript", "HTML, CSS", "SQL"],
     },
     {
       label: "Frameworks & Libraries",
@@ -53,7 +62,7 @@ export const resume: ResumeData = {
     },
     {
       label: "Architecture & Practices",
-      items: ["MVVM Architecture", "API Integration", "Responsive Design", "Code Review (GitHub / GitLab)"],
+      items: ["MVVM Architecture", "API Integration", "Responsive Design", "Code Review (GitHub/GitLab)"],
     },
     {
       label: "Tools & IDEs",
@@ -62,17 +71,20 @@ export const resume: ResumeData = {
   ],
   experience: [
     {
-      role: "Software Developer (Traineeship)",
+      role: "Trainee Software Developer",
       company: "Seventh Beam",
       location: "Melbourne, VIC",
       period: "Feb 2025 — Feb 2026",
-      summary: "Developed iOS and cross-platform applications using SwiftUI and Flutter with focus on MVVM architecture.",
+      summary:
+        "Developed iOS and cross-platform applications using SwiftUI and Flutter with focus on MVVM architecture.",
       highlights: [
         "Integrated third-party SDKs and RESTful APIs.",
         "Built responsive UI components and dashboards displaying dynamic data from APIs.",
         "Focused on clean layout structure and performance across devices.",
       ],
     },
+  ],
+  otherExperience: [
     {
       role: "Settlements Officer",
       company: "Angle Finance",
@@ -108,20 +120,34 @@ export const resume: ResumeData = {
         "Organised training and licenses; provided payroll assistance.",
       ],
     },
+    {
+      role: "Paralegal",
+      company: "Chance Hunter Solicitors",
+      location: "Manchester, UK",
+      period: "Jan 2011 — Sep 2014",
+      summary: "Paralegal support across claims, correspondence, and litigation prep.",
+      highlights: [
+        "Investigated claims and engaged in settlement negotiations.",
+        "Drafted client and third-party correspondence, witness statements, and briefs to counsel.",
+      ],
+    },
   ],
   education: [
     {
       degree: "Diploma of Information Technology",
       institution: "Kangan Institute",
       note: "Work-based traineeship",
+      year: "2025",
     },
     {
       degree: "Certificate IV in Information Technology",
       institution: "Kangan Institute",
+      year: "2024",
     },
     {
       degree: "Bachelor of Laws (LLB)",
       institution: "University of Sheffield",
+      year: "2009",
     },
   ],
 };
