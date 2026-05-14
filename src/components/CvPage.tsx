@@ -56,6 +56,26 @@ function JobArticle({ job }: { job: Job }) {
   );
 }
 
+function OtherJobTile({ job }: { job: Job }) {
+  return (
+    <article className={styles.otherExpTile}>
+      <h3 className={styles.otherExpCompany}>{job.company}</h3>
+      <p className={styles.otherExpRole}>{job.role}</p>
+      <span className={styles.otherExpMeta}>
+        {job.location} · {job.period}
+      </span>
+      <p className={styles.otherExpSummary}>{job.summary}</p>
+      {job.highlights.length > 0 ? (
+        <ul className={styles.otherExpBullets}>
+          {job.highlights.map((h) => (
+            <li key={h}>{h}</li>
+          ))}
+        </ul>
+      ) : null}
+    </article>
+  );
+}
+
 type Props = {
   scrollRef: ScrollRef;
   /** Set when this tree is loaded inside the About iframe (`?iframe=1`) so the nested phone is not rendered. */
@@ -280,6 +300,16 @@ export function CvPage({ scrollRef, hidePhoneMockup = false }: Props) {
           ))}
         </ul>
         <div className={styles.navRight}>
+          {resume.resumeDownloadHref ? (
+            <a
+              className={styles.navResume}
+              href={resume.resumeDownloadHref}
+              download="Sheree-Morrison-Resume.pdf"
+              onClick={() => setMenuOpen(false)}
+            >
+              Download resume
+            </a>
+          ) : null}
           <div className={styles.navContact}>
             <a href={`mailto:${resume.email}`}>{resume.email}</a>
             <a href={`tel:+44${resume.phone.replace(/^0/, "")}`}>{resume.phone}</a>
@@ -311,7 +341,7 @@ export function CvPage({ scrollRef, hidePhoneMockup = false }: Props) {
         <section ref={introRef} id="intro-section" className={styles.intro}>
           <div className={styles.sectionInner}>
             <div ref={introWrRef} className={styles.introContent}>
-              <h2 className={styles.introTitle}>Who am I</h2>
+              <h2 className={styles.introTitle}>About me</h2>
               <div ref={introCopyRef} className={styles.introCopy}>
                 <p className={styles.introBig}>
                   {resume.summary}
@@ -399,8 +429,10 @@ export function CvPage({ scrollRef, hidePhoneMockup = false }: Props) {
       <section ref={otherExpSectionRef} id="other-experience-section" className={styles.otherExperience}>
         <div className={styles.sectionInner}>
           <h2 className={styles.otherExperienceTitle}>Other experience</h2>
+        </div>
+        <div className={styles.otherExperienceGrid}>
           {resume.otherExperience.map((job) => (
-            <JobArticle key={`${job.company}-${job.period}`} job={job} />
+            <OtherJobTile key={`${job.company}-${job.period}`} job={job} />
           ))}
         </div>
       </section>

@@ -35,17 +35,20 @@ export type ResumeData = {
   /** Earlier roles outside the primary dev track. */
   otherExperience: Job[];
   education: Education[];
+  /** Public URL for PDF download */
+  resumeDownloadHref?: string;
 };
 
 export const resume: ResumeData = {
   name: "Sheree Morrison",
-  title: "Front-End Developer",
+  title: "Aspiring Front-End Developer",
   phone: "07440168734",
   location: "Warrington",
   workRights: "Full UK working rights",
   email: "shereemorrison@outlook.com",
   links: [],
   portfolioUrl: "https://shereemorrison.github.io/DigitalResume/",
+  resumeDownloadHref: "/resume.pdf",
   phonePreviewMode: "self-embed",
   siteTabLabel: "SM",
   heroCharacterMode: "reference-gltf",
@@ -76,7 +79,7 @@ export const resume: ResumeData = {
       location: "Melbourne, VIC",
       period: "Feb 2025 — Feb 2026",
       summary:
-        "Developed iOS and cross-platform applications using SwiftUI and Flutter with focus on MVVM architecture.",
+        "Developed iOS and cross-platform applications using SwiftUI and Flutter.",
       highlights: [
         "Integrated third-party SDKs and RESTful APIs.",
         "Built responsive UI components and dashboards displaying dynamic data from APIs.",
@@ -92,9 +95,10 @@ export const resume: ResumeData = {
       period: "Jul 2021 — Nov 2023",
       summary: "Settlement disbursements and lending operations with a compliance lens.",
       highlights: [
-        "AML/KYC compliance checks and settlement disbursements.",
-        "Coordinated contract generation.",
-        "Developed strong attention to detail and process management skills.",
+        "AML/KYC compliance checks",
+        "Settlement disbursements",
+        "Contract generation.",
+        "Following this role, I returned to study",
       ],
     },
     {
@@ -102,10 +106,10 @@ export const resume: ResumeData = {
       company: "Ubiqus",
       location: "Remote",
       period: "Jan 2019 — Jul 2021",
-      summary: "Verbatim and high-accuracy transcripts from varied audio sources.",
+      summary: "Verbatim transcripts from varied audio sources.",
       highlights: [
         "Maintained high accuracy standards while managing multiple projects.",
-        "Created verbatim transcripts from various audio sources.",
+        "Created verbatim transcripts from various audio sources including, but not limited to, court hearings and HR disciplinaries.",
       ],
     },
     {
@@ -113,21 +117,34 @@ export const resume: ResumeData = {
       company: "Inco Ships",
       location: "Sydney, NSW",
       period: "Dec 2017 — Dec 2019",
-      summary: "Workforce coordination, documentation, and payroll support for maritime crews.",
+      summary: "Workforce planning/coordination, and payroll support for maritime crews.",
       highlights: [
-        "Managed rostering and workforce planning systems.",
+        "Managed rostering and workforce planning, including travel arrangements and resume vetting.",
         "Generated engagement confirmations and workplace agreements.",
         "Organised training and licenses; provided payroll assistance.",
+        "Ensured qualification/licence compliance/validity"
       ],
     },
     {
-      role: "Paralegal",
+      role: "Database and Donor Services Coordinator",
+      company: "Centenary Institute",
+      location: "Sydney, NSW",
+      period: "Dec 2015 — Jul 2016",
+      summary: "CRM and donor database administration with migration support between platforms.",
+      highlights: [
+        "Maintained CRM systems and donor database.",
+        "Assisted with Salesforce to Raiser's Edge migration including data mapping.",
+      ],
+    },
+    {
+      role: "Claims Handler",
       company: "Chance Hunter Solicitors",
       location: "Manchester, UK",
       period: "Jan 2011 — Sep 2014",
-      summary: "Paralegal support across claims, correspondence, and litigation prep.",
+      summary: "Workplace claims - sole responsibility for c. 100 cases at any given time",
       highlights: [
-        "Investigated claims and engaged in settlement negotiations.",
+        "Investigated claims, including reviewing medical and workplace records",
+        "Engaged in settlement negotiations.",
         "Drafted client and third-party correspondence, witness statements, and briefs to counsel.",
       ],
     },
