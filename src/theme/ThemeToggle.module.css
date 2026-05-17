@@ -1,0 +1,67 @@
+.toggle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-code);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.42rem 0.85rem;
+  border: 1px solid var(--color-btn-border, var(--color-border));
+  border-radius: var(--radius-btn);
+  background: var(--color-btn-bg, transparent);
+  color: var(--color-btn-text, var(--color-accent-muted));
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.toggle:hover {
+  background: var(--color-btn-hover-bg);
+  border-color: var(--color-btn-hover-border);
+  color: var(--color-btn-hover-text);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.label {
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .toggle {
+    font-size: 0.72rem;
+    padding: 0.45rem 0.85rem;
+  }
+}
+
+@media (max-width: 479px) {
+  .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .toggle {
+    padding: 0.42rem 0.55rem;
+  }
+}

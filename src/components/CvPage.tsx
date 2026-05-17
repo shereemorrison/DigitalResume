@@ -4,6 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { resume, type Job } from "../data/resume";
 import { getPhoneIframeSrc } from "../lib/portfolioPreview";
+import { ThemeToggle } from "../theme";
 import styles from "./CvPage.module.css";
 import { BackgroundScene } from "./BackgroundScene";
 import { PhoneBrowser } from "./PhoneBrowser";
@@ -300,16 +301,19 @@ export function CvPage({ scrollRef, hidePhoneMockup = false }: Props) {
           ))}
         </ul>
         <div className={styles.navRight}>
-          {resume.resumeDownloadHref ? (
-            <a
-              className={styles.navResume}
-              href={resume.resumeDownloadHref}
-              download="Sheree-Morrison-Resume.pdf"
-              onClick={() => setMenuOpen(false)}
-            >
-              Download resume
-            </a>
-          ) : null}
+          <div className={styles.navActions}>
+            {resume.resumeDownloadHref ? (
+              <a
+                className={`${styles.btn} ${styles.btnNav}`}
+                href={resume.resumeDownloadHref}
+                download="Sheree-Morrison-Resume.pdf"
+                onClick={() => setMenuOpen(false)}
+              >
+                Download resume
+              </a>
+            ) : null}
+            <ThemeToggle />
+          </div>
           <div className={styles.navContact}>
             <a href={`mailto:${resume.email}`}>{resume.email}</a>
             <a href={`tel:+44${resume.phone.replace(/^0/, "")}`}>{resume.phone}</a>

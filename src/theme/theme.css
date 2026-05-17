@@ -1,0 +1,120 @@
+/**
+ * Semantic design tokens. Primitives live in :root; themes map them to UI roles.
+ * Set `data-theme="light" | "dark"` on `<html>` (see ThemeProvider + index.html).
+ */
+
+:root {
+  /* Brand primitives (light-mode source palette + dark complements) */
+  --palette-lilac: #e9d5ff;
+  --palette-purple: #7e22ce;
+  --palette-purple-deep: #4c1d95;
+  --palette-ink: #2a2a2a;
+  --palette-amber: #fbbf24;
+
+  --font-body: "Nunito", system-ui, sans-serif;
+  --font-code: "Space Mono", ui-monospace, monospace;
+
+  --section-pad-y: 2.45rem;
+  --section-pad-y-md: 2.65rem;
+  --section-pad-x: 1rem;
+  --section-pad-x-md: 1.5rem;
+
+  --radius-btn: 9999px;
+
+  /* Physical phone mockup — same in light and dark; only iframe content follows theme */
+  --color-phone-chrome: linear-gradient(155deg, #5a4a6a 0%, #1e1428 42%, #08060c 100%);
+  --color-phone-bezel: #06040c;
+  --color-phone-screen: #0a0810;
+}
+
+/* —— Dark (default) —— */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-background: #06040c;
+  --color-background-raised: #0c0814;
+  --color-surface-low: #120e1c;
+  --color-surface: #1a1428;
+  --color-background-section: #100c18;
+  --color-background-experience: #0e0a16;
+  --color-background-skills: #161024;
+  --color-accent: #c026d3;
+  --color-accent-muted: #9359c5;
+  --color-section-title: #9359c5;
+  --color-accent-gold: #fbbf24;
+  --color-accent-glow: rgba(244, 114, 182, 0.22);
+  --color-accent-gradient: linear-gradient(135deg, #f472b6 0%, #fb923c 48%, #fbbf24 100%);
+  --color-text-primary: #cac4de;
+  --color-text-secondary: #cac4de;
+  --color-text-muted: rgba(202, 196, 222, 0.45);
+  --color-border: rgba(244, 114, 182, 0.28);
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-nav-scrim: rgba(0, 0, 0, 0.92);
+  --color-hero-bg:
+    radial-gradient(ellipse 95% 72% at 50% 38%, #2a1048 0%, #12081f 42%, #06040c 72%),
+    #000000;
+  --color-hero-aurora:
+    radial-gradient(ellipse 58% 48% at 52% 46%, rgba(244, 114, 182, 0.34) 0%, transparent 58%),
+    radial-gradient(ellipse 44% 38% at 38% 52%, rgba(251, 146, 60, 0.22) 0%, transparent 62%),
+    radial-gradient(ellipse 36% 32% at 62% 40%, rgba(251, 191, 36, 0.16) 0%, transparent 65%);
+  --color-hero-text: #eae4f5;
+  --color-shadow-sm: rgba(0, 0, 0, 0.28);
+  --color-shadow-md: rgba(0, 0, 0, 0.42);
+  --color-preview-viewport: #06040c;
+  --color-selection-fg: #ffffff;
+  --color-selection-bg: #c026d3;
+
+  --color-btn-bg: transparent;
+  --color-btn-border: rgba(232, 121, 249, 0.42);
+  --color-btn-text: #e8dff5;
+  --color-btn-hover-bg: rgba(192, 38, 211, 0.88);
+  --color-btn-hover-border: transparent;
+  --color-btn-hover-text: #ffffff;
+}
+
+/* —— Light —— */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --color-chapter-gradient: linear-gradient(145deg, #f0d4ff 0%, #fde8f4 50%, #fff4e6 100%);
+  --color-chapter-solid: #fde8f4;
+  --color-page-fill: var(--color-chapter-gradient);
+  --color-section-fill: transparent;
+
+  --color-background: var(--color-chapter-solid);
+  --color-background-raised: #fffafe;
+  --color-surface-low: transparent;
+  --color-surface: rgba(255, 250, 255, 0.92);
+  --color-background-section: var(--color-section-fill);
+  --color-background-experience: var(--color-section-fill);
+  --color-background-skills: var(--color-section-fill);
+  --color-accent: var(--palette-purple);
+  --color-accent-muted: #9333ea;
+  --color-accent-gold: var(--palette-amber);
+  --color-accent-glow: rgba(236, 72, 153, 0.14);
+  --color-accent-gradient: linear-gradient(135deg, #7e22ce 0%, #ec4899 46%, #f59e0b 100%);
+  --color-text-primary: var(--palette-ink);
+  --color-text-secondary: #6b5b7d;
+  --color-text-muted: rgba(42, 42, 42, 0.45);
+  --color-border: rgba(126, 34, 206, 0.16);
+  --color-border-subtle: rgba(126, 34, 206, 0.08);
+  --color-nav-scrim: rgba(253, 232, 244, 0.9);
+  --color-hero-bg: var(--color-chapter-gradient);
+  --color-hero-aurora:
+    radial-gradient(ellipse 55% 48% at 52% 42%, rgba(236, 72, 153, 0.14) 0%, transparent 58%),
+    radial-gradient(ellipse 42% 36% at 28% 58%, rgba(245, 158, 11, 0.12) 0%, transparent 62%);
+  --color-hero-text: var(--palette-purple-deep);
+  --color-shadow-sm: rgba(126, 34, 206, 0.1);
+  --color-shadow-md: rgba(236, 72, 153, 0.14);
+  --color-preview-viewport: var(--color-chapter-gradient);
+  --color-selection-fg: var(--palette-ink);
+  --color-selection-bg: var(--palette-lilac);
+
+  --color-btn-bg: transparent;
+  --color-btn-border: rgba(126, 34, 206, 0.4);
+  --color-btn-text: #6b21a8;
+  --color-btn-hover-bg: #e9d5ff;
+  --color-btn-hover-border: rgba(126, 34, 206, 0.55);
+  --color-btn-hover-text: #6b21a8;
+}

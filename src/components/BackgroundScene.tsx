@@ -1,8 +1,9 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls, useAnimations, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import type { Group, Object3D } from "three";
+import { useTheme, type ThemeMode } from "../theme";
 
 const heroModelUrl = `${import.meta.env.BASE_URL}Meshy_AI_Purple_Code_Muse_0514125713_texture.glb`;
 
@@ -22,10 +23,52 @@ const INITIAL_ORBIT_POLAR = 1.055;
 const HERO_CAMERA_DISTANCE = 6.05;
 const HERO_CAMERA_FOV = 42;
 
-function harmonizeResumeMaterials(root: Object3D) {
-  const baseTint = new THREE.Color("#4a4366");
-  const emissiveViolet = new THREE.Color("#9b5fd8");
-  const emissiveTeal = new THREE.Color("#1a6b5c");
+const SCENE_THEME = {
+  dark: {
+    bg: "#06040c",
+    fog: "#140a22",
+    ambient: "#f0e8ff",
+    hemiSky: "#f9a8d4",
+    hemiGround: "#1a0f28",
+    key: "#fff7ed",
+    fill: "#fda4af",
+    rim: "#fb923c",
+    modelTint: "#5c4a78",
+    emissiveViolet: "#e879f9",
+    emissiveTeal: "#f472b6",
+    exposure: 1.34,
+  },
+  light: {
+    bg: "#f0d4ff",
+    fog: "#fde8f4",
+    ambient: "#fff8fc",
+    hemiSky: "#f0abfc",
+    hemiGround: "#fde68a",
+    key: "#ffffff",
+    fill: "#e9d5ff",
+    rim: "#ec4899",
+    modelTint: "#6b4d8a",
+    emissiveViolet: "#a855f7",
+    emissiveTeal: "#ec4899",
+    exposure: 1.16,
+  },
+} as const;
+
+/** Hide backdrop meshes sometimes bundled in hero GLBs (name match only — avoids hiding the character). */
+function stripEmbeddedBackdrop(root: Object3D) {
+  root.traverse((obj) => {
+    const name = obj.name.toLowerCase();
+    if (/background|backdrop|backplate|shadow.?plane|ground.?plane|studio|pedestal|platform|\bfloor\b/.test(name)) {
+      obj.visible = false;
+    }
+  });
+}
+
+function harmonizeResumeMaterials(root: Object3D, theme: ThemeMode) {
+  const t = SCENE_THEME[theme];
+  const baseTint = new THREE.Color(t.modelTint);
+  const emissiveViolet = new THREE.Color(t.emissiveViolet);
+  const emissiveTeal = new THREE.Color(t.emissiveTeal);
 
   root.traverse((obj) => {
     if (!(obj instanceof THREE.Mesh)) return;
@@ -33,14 +76,14 @@ function harmonizeResumeMaterials(root: Object3D) {
     for (const mat of mats) {
       if (!mat) continue;
       if (mat instanceof THREE.MeshStandardMaterial || mat instanceof THREE.MeshPhysicalMaterial) {
-        mat.color.lerp(baseTint, 0.07);
+        mat.color.lerp(baseTint, theme === "light" ? 0.05 : 0.07);
         const e = mat.emissive.clone();
-        e.lerp(emissiveViolet, 0.14).lerp(emissiveTeal, 0.06);
+        e.lerp(emissiveViolet, theme === "light" ? 0.1 : 0.14).lerp(emissiveTeal, 0.06);
         mat.emissive.copy(e);
         mat.emissiveIntensity = THREE.MathUtils.clamp(
-          (mat.emissiveIntensity ?? 0) * 0.92 + 0.08,
+          (mat.emissiveIntensity ?? 0) * 0.92 + (theme === "light" ? 0.05 : 0.08),
           0.06,
-          0.65
+          theme === "light" ? 0.45 : 0.65
         );
         mat.roughness = THREE.MathUtils.clamp(mat.roughness * 0.96 + 0.02, 0.2, 0.72);
         mat.metalness = THREE.MathUtils.clamp(mat.metalness * 0.88 + 0.06, 0.06, 0.48);
@@ -87,16 +130,17 @@ function heroInitialCameraPosition(): [number, number, number] {
   return [v.x, v.y, v.z];
 }
 
-function HeroModel() {
+function HeroModel({ theme }: { theme: ThemeMode }) {
   const group = useRef<Group>(null);
   const { scene, animations } = useGLTF(heroModelUrl);
   const { actions } = useAnimations(animations, group);
 
   useLayoutEffect(() => {
-    harmonizeResumeMaterials(scene);
+    stripEmbeddedBackdrop(scene);
+    harmonizeResumeMaterials(scene, theme);
     fitAndCenter(scene, HERO_MODEL_MAX_SIZE);
     scene.position.y += HERO_WORLD_SHIFT_Y;
-  }, [scene]);
+  }, [scene, theme]);
 
   useEffect(() => {
     if (!actions || animations.length === 0) return;
@@ -118,13 +162,26 @@ function HeroModel() {
 
 useGLTF.preload(heroModelUrl);
 
-function Scene() {
+function SceneClearColor({ theme }: { theme: ThemeMode }) {
+  const { gl } = useThree();
+  const t = SCENE_THEME[theme];
+
+  useEffect(() => {
+    gl.setClearColor(0x000000, 0);
+    gl.toneMappingExposure = t.exposure;
+  }, [gl, t.exposure]);
+
+  return null;
+}
+
+function Scene({ theme }: { theme: ThemeMode }) {
   const orbitRef = useRef<{
     target: THREE.Vector3;
     azimuthalAngle: number;
     polarAngle: number;
     update: () => void;
   } | null>(null);
+  const t = SCENE_THEME[theme];
 
   useLayoutEffect(() => {
     const oc = orbitRef.current;
@@ -137,14 +194,13 @@ function Scene() {
 
   return (
     <>
-      <color attach="background" args={["#050508"]} />
-      <fog attach="fog" args={["#08060c", 18, 48]} />
-      <ambientLight intensity={0.72} color="#dcd4f0" />
-      <hemisphereLight args={["#c8bdf5", "#1a2830", 0.45]} position={[0, 3, 0]} />
-      <directionalLight position={[3.8, 6.2, 4.2]} intensity={1.45} color="#fff5ff" />
-      <directionalLight position={[-4.5, 2.5, -2.5]} intensity={0.62} color="#9cf0e4" />
-      <pointLight position={[-2.2, 0.2, 2.8]} intensity={0.75} color="#b87aff" distance={14} decay={2} />
-      <HeroModel />
+      <SceneClearColor theme={theme} />
+      <ambientLight intensity={theme === "light" ? 0.85 : 0.72} color={t.ambient} />
+      <hemisphereLight args={[t.hemiSky, t.hemiGround, theme === "light" ? 0.55 : 0.45]} position={[0, 3, 0]} />
+      <directionalLight position={[3.8, 6.2, 4.2]} intensity={theme === "light" ? 1.2 : 1.45} color={t.key} />
+      <directionalLight position={[-4.5, 2.5, -2.5]} intensity={theme === "light" ? 0.5 : 0.62} color={t.fill} />
+      <pointLight position={[-2.2, 0.2, 2.8]} intensity={theme === "light" ? 0.55 : 0.75} color={t.rim} distance={14} decay={2} />
+      <HeroModel theme={theme} />
       <OrbitControls
         ref={orbitRef}
         makeDefault
@@ -164,7 +220,9 @@ function Scene() {
 }
 
 export function BackgroundScene() {
+  const { theme } = useTheme();
   const dpr = Math.min(window.devicePixelRatio ?? 1, 2);
+  const sceneTheme = SCENE_THEME[theme];
 
   return (
     <div style={{ width: "100%", height: "100%", touchAction: "none" }}>
@@ -174,16 +232,22 @@ export function BackgroundScene() {
           position: heroInitialCameraPosition(),
           fov: HERO_CAMERA_FOV,
         }}
-        gl={{ alpha: false, antialias: true, powerPreference: "default", localClippingEnabled: false }}
+        gl={{
+          alpha: true,
+          antialias: true,
+          powerPreference: "default",
+          localClippingEnabled: false,
+          premultipliedAlpha: true,
+        }}
         onCreated={({ gl, camera }) => {
           camera.lookAt(0, 0, 0);
-          gl.setClearColor("#050508", 1);
+          gl.setClearColor(0x000000, 0);
           gl.toneMapping = THREE.ACESFilmicToneMapping;
-          gl.toneMappingExposure = 1.28;
+          gl.toneMappingExposure = sceneTheme.exposure;
           gl.localClippingEnabled = false;
         }}
       >
-        <Scene />
+        <Scene theme={theme} />
       </Canvas>
     </div>
   );

@@ -2,9 +2,9 @@ import { useLayoutEffect, useRef } from "react";
 import { canEmbedInIframe } from "../lib/portfolioPreview";
 import styles from "./PhoneBrowser.module.css";
 
-/** Logical iPhone 13 mini-ish viewport for the live preview iframe. */
+/** Logical viewport — aspect ratio matches `.phoneDevice` (9 / 19.2). */
 const IFRAME_W = 390;
-const IFRAME_H = 844;
+const IFRAME_H = Math.round((IFRAME_W * 19.2) / 9);
 
 type Props = {
   url: string;
@@ -25,8 +25,8 @@ export function PhoneBrowser({ url, title = "Portfolio preview" }: Props) {
         el.style.setProperty("--phone-scale", "1");
         return;
       }
-      /** Contain: full page visible inside the glass (no horizontal crop / bright edge bleed). */
-      const fit = Math.min(w / IFRAME_W, h / IFRAME_H);
+      /** Cover: fill the screen cutout edge-to-edge (no letterbox bars). */
+      const fit = Math.max(w / IFRAME_W, h / IFRAME_H);
       const scale = Math.min(4, Math.max(0.1, Math.ceil(fit * 2000) / 2000));
       el.style.setProperty("--phone-scale", String(scale));
     };

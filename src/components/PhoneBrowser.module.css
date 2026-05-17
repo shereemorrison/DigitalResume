@@ -6,7 +6,7 @@
   box-sizing: border-box;
   overflow: hidden;
   border-radius: inherit;
-  background: #08080c;
+  background: var(--color-preview-viewport, var(--color-phone-screen));
   -webkit-overflow-scrolling: touch;
   --phone-scale: 1;
   min-width: 0;
@@ -21,7 +21,7 @@
   height: 844px;
   border: 0;
   display: block;
-  background: #08080c;
+  background: var(--color-preview-viewport, var(--color-phone-screen));
   transform: translate3d(-50%, -50%, 0) scale(var(--phone-scale, 1));
   transform-origin: center center;
   backface-visibility: hidden;

@@ -7,8 +7,15 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#0a0a0f" />
+    <script>
+      (function () {
+        var k = "resume-theme";
+        var s = localStorage.getItem(k);
+        var t = s === "light" || s === "dark" ? s : "dark";
+        document.documentElement.setAttribute("data-theme", t);
+      })();
+    </script>
     <meta name="apple-mobile-web-app-title" content="SM" />
     <meta name="application-name" content="SM" />
     <meta property="og:title" content="SM" />

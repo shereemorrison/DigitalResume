@@ -1,7 +1,3 @@
-:root {
-  --c-black: #1f1f1f;
-}
-
 *,
 *::before,
 *::after {
@@ -14,7 +10,7 @@ html {
   min-height: 100dvh;
   min-height: 100svh;
   min-height: -webkit-fill-available;
-  background-color: #0a0a0f;
+  background-color: var(--color-background);
   overflow-x: clip;
 }
 
@@ -24,8 +20,8 @@ body {
   min-height: 100dvh;
   min-height: 100svh;
   min-height: -webkit-fill-available;
-  color: #e8e8ed;
-  background-color: #0a0a0f;
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
 }
@@ -36,7 +32,7 @@ body {
   min-height: 100dvh;
   min-height: 100svh;
   min-height: -webkit-fill-available;
-  background-color: #0a0a0f;
+  background-color: var(--color-background);
   overflow-x: clip;
 }
 
@@ -45,15 +41,16 @@ a {
 }
 
 ::selection {
-  color: #fff;
-  background: #892fd0;
+  color: var(--color-selection-fg);
+  background: var(--color-selection-bg);
 }
 
-/* Phone iframe shell (`?iframe=1`): no native scrollbar gutter — full-bleed width; wheel/trackpad/touch still scroll. */
+/* Phone iframe shell (`?iframe=1`): full-bleed width + chapter background matches main page */
 html:has([data-iframe-preview]) {
   scrollbar-gutter: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  background: var(--color-page-fill, var(--color-background));
 }
 
 html:has([data-iframe-preview])::-webkit-scrollbar {
@@ -64,6 +61,7 @@ html:has([data-iframe-preview])::-webkit-scrollbar {
 html:has([data-iframe-preview]) body {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  background: transparent;
 }
 
 html:has([data-iframe-preview]) body::-webkit-scrollbar {
@@ -74,4 +72,5 @@ html:has([data-iframe-preview]) body::-webkit-scrollbar {
 html:has([data-iframe-preview]) #root {
   width: 100%;
   max-width: 100%;
+  background: transparent;
 }

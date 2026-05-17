@@ -3,5 +3,5 @@
   min-height: 100dvh;
   min-height: 100svh;
   min-height: -webkit-fill-available;
-  background-color: #0a0a0f;
+  background-color: var(--color-background);
 }
