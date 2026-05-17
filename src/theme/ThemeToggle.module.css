@@ -48,20 +48,18 @@
   }
 }
 
-@media (max-width: 479px) {
-  .label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
+.toggleCompact .label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
-  .toggle {
-    padding: 0.42rem 0.55rem;
-  }
+.toggleCompact {
+  padding: 0.42rem 0.55rem;
 }

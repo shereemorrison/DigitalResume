@@ -171,27 +171,85 @@
   left: 0;
   right: 0;
   z-index: 50;
+  isolation: isolate;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  gap: 0.65rem;
   padding: calc(0.65rem + env(safe-area-inset-top, 0px)) 1rem 0.65rem;
   background: var(--color-nav-scrim);
   border-bottom: 1px solid var(--color-border);
   backdrop-filter: blur(14px);
 }
 
-.navList {
-  display: none;
+/* Off-screen probe — must not affect flex layout (avoids compact ↔ wide flicker) */
+.navMeasure {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.navListMeasure {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
   list-style: none;
   margin: 0;
   padding: 0;
   gap: 1.25rem;
-  flex-wrap: wrap;
-  align-items: center;
 }
 
-.navListOpen {
+.navDownloadMeasure {
+  position: absolute;
+  left: -9999px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.navListMeasure .navLink {
+  display: inline-block;
+}
+
+/* —— Wide: inline nav links —— */
+.nav:not(.navCompact) .burger {
+  display: none;
+}
+
+.nav:not(.navCompact) .navList {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 1.25rem;
+}
+
+.nav:not(.navCompact) .navListOpen {
+  display: flex;
+}
+
+/* —— Compact: hamburger menu —— */
+.nav.navCompact .burger {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.nav.navCompact .navList {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav.navCompact .navListOpen {
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -201,27 +259,12 @@
   padding: 0.75rem 1rem 1rem;
   background: var(--color-background-raised);
   border-bottom: 1px solid var(--color-border);
-  gap: 0;
+  gap: 0.35rem;
 }
 
-@media (min-width: 768px) {
-  .navList {
-    display: flex;
-    flex-direction: row;
-    position: static;
-    padding: 0;
-    background: transparent;
-    border: none;
-  }
-
-  .navListOpen {
-    display: flex;
-    flex-direction: row;
-    position: static;
-    background: transparent;
-    border: none;
-    padding: 0;
-  }
+.nav.navCompact .navRight {
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .navLink {
@@ -230,16 +273,23 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-secondary);
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--color-border-subtle);
   transition: color 0.2s ease;
 }
 
-@media (min-width: 768px) {
-  .navLink {
-    padding: 0;
-    border: none;
-  }
+.nav:not(.navCompact) .navLink {
+  padding: 0;
+  border: none;
+}
+
+.nav.navCompact .navLink {
+  display: block;
+  padding: 0.45rem 0;
+  border: none;
+}
+
+.navMenuAction {
+  margin-top: 0.35rem;
+  padding-top: 0.15rem;
 }
 
 .navLink:hover {
@@ -321,7 +371,7 @@
 }
 
 .burger {
-  display: flex;
+  display: none;
   flex-direction: column;
   justify-content: center;
   align-items: flex-end;
@@ -331,12 +381,6 @@
   border: 1px solid var(--color-border);
   background: transparent;
   cursor: pointer;
-}
-
-@media (min-width: 768px) {
-  .burger {
-    display: none;
-  }
 }
 
 .burger span {

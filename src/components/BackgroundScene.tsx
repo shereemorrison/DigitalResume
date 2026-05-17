@@ -9,18 +9,40 @@ const heroModelUrl = `${import.meta.env.BASE_URL}Meshy_AI_Purple_Code_Muse_05141
 
 const HERO_MODEL_MAX_SIZE = 4.65;
 
-const DEFAULT_HERO_ROT_Y = 0.55;
-/**
- * Shift mesh in world -Y after centering so the head clears the top of the square viewport
- * (legs may extend toward the bottom — layout / next section can cover them; no GPU leg clip).
+/*
+ * —— Model rotation (turns the character mesh) ——
+ * Applied as rotation={[X, Y, Z]} on the hero <group> below.
+ * All values are radians (π ≈ 3.14; 90° ≈ 1.57).
  */
+/** X — tilt forward/back (chin up ↓ smaller / chin down ↑ larger). Usually leave at 0. */
+const HERO_MODEL_ROT_X = 0;
+/** Y — turn left/right on the spot (↓ left · ↑ right). ~0.78 ≈ 3/4 pose facing screen-right. */
+const HERO_MODEL_ROT_Y = 0.45;
+/** Z — lean sideways (roll). Usually leave at 0. */
+const HERO_MODEL_ROT_Z = 0;
+
+/*
+ * —— Model position (moves in the frame, does not rotate) ——
+ */
+/** Y — slide down in the viewport (more negative = lower). Not rotation. */
 const HERO_WORLD_SHIFT_Y = -0.18;
 
-const INITIAL_ORBIT_AZIMUTHAL = 0;
+/*
+ * —— Camera orbit on load (OrbitControls — moves the camera around the character) ——
+ * Dragging the hero updates these same two angles.
+ */
+/** Horizontal orbit — camera circles left/right around the model (↓ left · ↑ right). */
+const INITIAL_ORBIT_AZIMUTHAL = 0.34;
+/**
+ * Vertical orbit — camera height / how much you look down at the model.
+ * Smaller = camera higher, looking down more.
+ * Larger (toward ~1.57) = closer to eye level.
+ */
+const INITIAL_ORBIT_POLAR = 1.28;
 
-const INITIAL_ORBIT_POLAR = 1.055;
-
+/** How far the camera sits from the model (zoom). Larger = farther away. */
 const HERO_CAMERA_DISTANCE = 6.05;
+/** Lens width — lower = zoomed in, higher = wider. */
 const HERO_CAMERA_FOV = 42;
 
 const SCENE_THEME = {
@@ -139,7 +161,7 @@ function HeroModel({ theme }: { theme: ThemeMode }) {
     stripEmbeddedBackdrop(scene);
     harmonizeResumeMaterials(scene, theme);
     fitAndCenter(scene, HERO_MODEL_MAX_SIZE);
-    scene.position.y += HERO_WORLD_SHIFT_Y;
+    scene.position.y += HERO_WORLD_SHIFT_Y; // vertical nudge after centre (not rotation)
   }, [scene, theme]);
 
   useEffect(() => {
@@ -154,7 +176,7 @@ function HeroModel({ theme }: { theme: ThemeMode }) {
   }, [actions, animations.length]);
 
   return (
-    <group ref={group} rotation={[0, DEFAULT_HERO_ROT_Y, 0]}>
+    <group ref={group} rotation={[HERO_MODEL_ROT_X, HERO_MODEL_ROT_Y, HERO_MODEL_ROT_Z]}>
       <primitive object={scene} />
     </group>
   );
@@ -186,9 +208,9 @@ function Scene({ theme }: { theme: ThemeMode }) {
   useLayoutEffect(() => {
     const oc = orbitRef.current;
     if (!oc) return;
-    oc.target.set(0, 0, 0);
-    oc.azimuthalAngle = INITIAL_ORBIT_AZIMUTHAL;
-    oc.polarAngle = INITIAL_ORBIT_POLAR;
+    oc.target.set(0, 0, 0); // look-at point (centre of orbit)
+    oc.azimuthalAngle = INITIAL_ORBIT_AZIMUTHAL; // horizontal camera angle on load
+    oc.polarAngle = INITIAL_ORBIT_POLAR; // vertical camera angle on load (see constant notes)
     oc.update();
   }, []);
 
@@ -208,8 +230,8 @@ function Scene({ theme }: { theme: ThemeMode }) {
         enableZoom={false}
         minDistance={HERO_CAMERA_DISTANCE}
         maxDistance={HERO_CAMERA_DISTANCE}
-        minPolarAngle={0.32}
-        maxPolarAngle={Math.PI - 0.32}
+        minPolarAngle={0.32} // limit how far up the user can drag (smaller = more top-down)
+        maxPolarAngle={Math.PI - 0.32} // limit how far down the user can drag
         target={[0, 0, 0]}
         enableDamping
         dampingFactor={0.08}

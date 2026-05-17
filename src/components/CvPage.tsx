@@ -85,6 +85,11 @@ type Props = {
 
 export function CvPage({ scrollRef, hidePhoneMockup = false }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [navCompact, setNavCompact] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  const navMeasureListRef = useRef<HTMLUListElement>(null);
+  const navRightRef = useRef<HTMLDivElement>(null);
+  const navDownloadMeasureRef = useRef<HTMLSpanElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -103,6 +108,44 @@ export function CvPage({ scrollRef, hidePhoneMockup = false }: Props) {
     () => getPhoneIframeSrc(resume.phonePreviewMode, resume.portfolioUrl),
     [resume.phonePreviewMode, resume.portfolioUrl]
   );
+
+  useLayoutEffect(() => {
+    const nav = navRef.current;
+    const list = navMeasureListRef.current;
+    const navRight = navRightRef.current;
+    if (!nav || !list) return;
+
+    const burgerReserve = 46;
+    const navGap = 12;
+
+    const updateNavLayout = () => {
+      const downloadW = navDownloadMeasureRef.current?.offsetWidth ?? 0;
+      const themeW =
+        navRight?.querySelector<HTMLElement>("button")?.offsetWidth ?? 48;
+      const reservedRight =
+        themeW + (resume.resumeDownloadHref && downloadW > 0 ? downloadW + 8 : 0);
+      const available = nav.clientWidth - burgerReserve - reservedRight - navGap;
+
+      list.style.width = `${Math.max(0, available)}px`;
+
+      const overflows = list.scrollWidth > list.clientWidth + 1;
+      setNavCompact((prev) => (prev === overflows ? prev : overflows));
+    };
+
+    updateNavLayout();
+    const ro = new ResizeObserver(updateNavLayout);
+    ro.observe(nav);
+    if (navRight) ro.observe(navRight);
+    window.addEventListener("resize", updateNavLayout);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", updateNavLayout);
+    };
+  }, [resume.resumeDownloadHref]);
+
+  useLayoutEffect(() => {
+    if (!navCompact) setMenuOpen(false);
+  }, [navCompact]);
 
   useLayoutEffect(() => {
     const root = rootRef.current;
@@ -276,7 +319,11 @@ export function CvPage({ scrollRef, hidePhoneMockup = false }: Props) {
         <div ref={barRef} className={styles.progressBar} />
       </div>
 
-      <nav className={styles.nav} aria-label="Primary">
+      <nav
+        ref={navRef}
+        className={`${styles.nav} ${navCompact ? styles.navCompact : ""}`}
+        aria-label="Primary"
+      >
         <button
           type="button"
           className={`${styles.burger} ${menuOpen ? styles.burgerOpen : ""}`}
@@ -287,6 +334,23 @@ export function CvPage({ scrollRef, hidePhoneMockup = false }: Props) {
           <span />
           <span />
         </button>
+        <div className={styles.navMeasure} aria-hidden>
+          <ul ref={navMeasureListRef} className={styles.navListMeasure}>
+            {NAV.map((item) => (
+              <li key={`measure-${item.href}`}>
+                <span className={styles.navLink}>{item.label}</span>
+              </li>
+            ))}
+          </ul>
+          {resume.resumeDownloadHref ? (
+            <span
+              ref={navDownloadMeasureRef}
+              className={`${styles.btn} ${styles.btnNav} ${styles.navDownloadMeasure}`}
+            >
+              Download resume
+            </span>
+          ) : null}
+        </div>
         <ul className={`${styles.navList} ${menuOpen ? styles.navListOpen : ""}`}>
           {NAV.map((item) => (
             <li key={item.href}>
@@ -299,10 +363,8 @@ export function CvPage({ scrollRef, hidePhoneMockup = false }: Props) {
               </a>
             </li>
           ))}
-        </ul>
-        <div className={styles.navRight}>
-          <div className={styles.navActions}>
-            {resume.resumeDownloadHref ? (
+          {navCompact && resume.resumeDownloadHref ? (
+            <li className={styles.navMenuAction}>
               <a
                 className={`${styles.btn} ${styles.btnNav}`}
                 href={resume.resumeDownloadHref}
@@ -311,8 +373,21 @@ export function CvPage({ scrollRef, hidePhoneMockup = false }: Props) {
               >
                 Download resume
               </a>
+            </li>
+          ) : null}
+        </ul>
+        <div ref={navRightRef} className={styles.navRight}>
+          <div className={styles.navActions}>
+            {!navCompact && resume.resumeDownloadHref ? (
+              <a
+                className={`${styles.btn} ${styles.btnNav}`}
+                href={resume.resumeDownloadHref}
+                download="Sheree-Morrison-Resume.pdf"
+              >
+                Download resume
+              </a>
             ) : null}
-            <ThemeToggle />
+            <ThemeToggle compact={navCompact} />
           </div>
           <div className={styles.navContact}>
             <a href={`mailto:${resume.email}`}>{resume.email}</a>
