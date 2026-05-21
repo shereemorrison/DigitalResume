@@ -1,14 +1,19 @@
 import { useTheme } from "./ThemeProvider";
 import styles from "./ThemeToggle.module.css";
 
-export function ThemeToggle() {
+type Props = {
+  /** Icon-only layout for narrow nav bars */
+  compact?: boolean;
+};
+
+export function ThemeToggle({ compact = false }: Props) {
   const { theme, toggleTheme } = useTheme();
   const isLight = theme === "light";
 
   return (
     <button
       type="button"
-      className={styles.toggle}
+      className={`${styles.toggle} ${compact ? styles.toggleCompact : ""}`}
       onClick={toggleTheme}
       aria-label={isLight ? "Switch to dark mode" : "Switch to light mode"}
       aria-pressed={isLight}
